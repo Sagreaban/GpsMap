@@ -61,17 +61,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     void updateDisplay(Location location) {
+
+        LatLngBounds.Builder bounds;
+
+        bounds = new LatLngBounds.Builder();
+
         mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         GoogleMap map =( (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLatitude());
+
+        LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        // this works over onMapReady
         map.addMarker(new MarkerOptions()
                     .position(tmpLatLng)
-                    .title("UMark" + String.valueOf(markerInt)));
+                    .title("YMark" + String.valueOf(markerInt++)));
 
-        mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        for(LatLng iLatLng : arrLatLng) {
+
+            // mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            mapFragment.getMapAsync(this);
+            bounds.include(iLatLng);
+
+        }
+        if (arrLatLng.size() > 0)
+            map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,11 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast.makeText(MapsActivity.this, "onMapReady!", Toast.LENGTH_SHORT).show();
 
 
-<<<<<<< HEAD
-        // LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
-=======
-        //LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
->>>>>>> dbFeature
+
         // LatLng disneyMagicKingdom = new LatLng(28.418971, -81.581436);
 
 
@@ -123,14 +134,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .title("Kingdom"));
         bounds.include(new LatLng(28.418971, -81.581436));
 */
-
+        /*
         for(LatLng tmpLatLng : arrLatLng) {
             map.addMarker(new MarkerOptions()
                     .position(tmpLatLng)
-                    .title("UMark"));
+                    .title("UMark" + String.valueOf(markerInt++)));
             bounds.include(tmpLatLng);
         }
-
+*/
         // move map to last position
         if (arrLatLng.size() > 0)
             map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
@@ -145,6 +156,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("keyMarkers", arrLatLng);
+
+
     }
 
     public void funcButtonMark(View view) {
@@ -222,6 +235,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int minTime = 5000;
         float minDistance = 0;
         mManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, mListener);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Add a new student record
+        /*
+        ContentValues values = new ContentValues();
+
+        for(LatLng ll : arrLatLng) {
+            Double dLatTmp = ll.latitude;
+            Double dLngTmp = ll.longitude;
+            String sLatTmp = dLatTmp.toString();
+            String sLngTmp = dLngTmp.toString();
+
+            values.put(MarkerCP.sLAT, sLatTmp);
+            values.put(MarkerCP.sLNG, sLngTmp);
+
+            // values.put(StudentsProvider.GRADE, ((EditText)findViewById(R.id.editText3)).getText().toString());
+
+            Uri uri = getContentResolver().insert(MarkerCP.uriCONTENT_URI, values);
+
+            Toast.makeText(getBaseContext(),
+                    uri.toString(), Toast.LENGTH_LONG).show();
+
+        }
+        */
 
     }
 } // MapsActivity
