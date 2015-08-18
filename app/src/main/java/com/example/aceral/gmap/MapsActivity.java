@@ -91,8 +91,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast.makeText(MapsActivity.this, "onMapReady!", Toast.LENGTH_SHORT).show();
 
 
-        LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
-        LatLng disneyMagicKingdom = new LatLng(28.418971, -81.581436);
+        // LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
+        // LatLng disneyMagicKingdom = new LatLng(28.418971, -81.581436);
 
 
         /*map.addMarker(new MarkerOptions()
