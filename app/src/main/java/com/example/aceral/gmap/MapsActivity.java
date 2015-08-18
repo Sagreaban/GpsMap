@@ -30,7 +30,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        private LocationListener mListener = new LocationListener() {
+    private LocationListener mListener = new LocationListener() {
             //New location event
             @Override
             public void onLocationChanged(Location location) {
@@ -41,9 +41,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
 
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
 
             }
 
@@ -60,18 +59,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     void updateDisplay(Location location) {
-            mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            GoogleMap map =( (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+        mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        GoogleMap map =( (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 
-            LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLatitude());
-            map.addMarker(new MarkerOptions()
+        LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLatitude());
+        map.addMarker(new MarkerOptions()
                     .position(tmpLatLng)
                     .title("UMark"));
 
         mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        }
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,8 +90,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast.makeText(MapsActivity.this, "onMapReady!", Toast.LENGTH_SHORT).show();
 
 
-        LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
-        LatLng disneyMagicKingdom = new LatLng(28.418971, -81.581436);
+        //LatLng disneySevenLagoon = new LatLng(28.410067, -81.583699);
+        // LatLng disneyMagicKingdom = new LatLng(28.418971, -81.581436);
 
 
         /*map.addMarker(new MarkerOptions()
@@ -126,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             bounds.include(tmpLatLng);
         }
 
-        // move map to last position 
+        // move map to last position
         if (arrLatLng.size() > 0)
             map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
         // map.moveCamera(CameraUpdateFactory.newLatLng(disneySevenLagoon));
