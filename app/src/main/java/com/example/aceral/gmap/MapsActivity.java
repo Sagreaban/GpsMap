@@ -81,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
+
     }
 
     @Override
@@ -103,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLngBounds.Builder bounds;
 
         bounds = new LatLngBounds.Builder();
-
+/*
         map.addMarker(new MarkerOptions()
                 // .position(new LatLng(0,0))
                 .position(disneySevenLagoon)
@@ -115,7 +117,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(disneyMagicKingdom)
                 .title("Kingdom"));
         bounds.include(new LatLng(28.418971, -81.581436));
-
+*/
 
         for(LatLng tmpLatLng : arrLatLng) {
             map.addMarker(new MarkerOptions()
@@ -123,13 +125,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .title("UMark"));
             bounds.include(tmpLatLng);
         }
-        map.moveCamera(CameraUpdateFactory.newLatLng(disneySevenLagoon));
+
+        // move map to last position 
+        if (arrLatLng.size() > 0)
+            map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
+        // map.moveCamera(CameraUpdateFactory.newLatLng(disneySevenLagoon));
         // CameraUpdate cU = CameraUpdateFactory.newLatLngBounds(bounds.build(), 100, 100, 50);
 
         //map.moveCamera(cU);
 
     } // onMapReady
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("keyMarkers", arrLatLng);
+    }
 
     public void funcButtonMark(View view) {
        Toast.makeText(this, "Marking!", Toast.LENGTH_SHORT).show();
