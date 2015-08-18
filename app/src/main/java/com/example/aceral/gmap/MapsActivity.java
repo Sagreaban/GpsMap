@@ -27,6 +27,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<LatLng> arrLatLng = new ArrayList<LatLng>(); //xac+
     private Location mCurrentLocation;
     private LocationManager mManager;
+    static int markerInt = 0;
+
 
 
 
@@ -65,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLatitude());
         map.addMarker(new MarkerOptions()
                     .position(tmpLatLng)
-                    .title("UMark"));
+                    .title("UMark" + String.valueOf(markerInt)));
 
         mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
