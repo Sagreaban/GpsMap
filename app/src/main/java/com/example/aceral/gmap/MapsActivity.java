@@ -1,6 +1,9 @@
 package com.example.aceral.gmap;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -8,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +24,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import static android.provider.BaseColumns._ID;
+import static com.example.aceral.gmap.Constants.LAT;
+import static com.example.aceral.gmap.Constants.LNG;
+import static com.example.aceral.gmap.Constants.TABLE_NAME;
+
 //import com.google.android.gms.location.LocationListener;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -29,6 +38,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager mManager;
     static int markerInt = 0;
 
+    // private static String[] FROM = { _ID, TIME, TITLE, };
+    private static String[] FROM = { _ID, LAT, LNG, };
+    // private static String ORDER_BY = TIME + " DESC";
+    private static String ORDER_BY = LAT + " DESC";
+    private MarkerSQL events;
 
 
 
@@ -39,7 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mCurrentLocation = location;
                 // GPS updates quite often, sending a Toast every 5 seconds or so
                 Toast.makeText(MapsActivity.this, "GPS invoked onLocationChanged!", Toast.LENGTH_SHORT).show();
-               updateDisplay(location);
+                updateDisplay(location);
 
             }
 
@@ -74,29 +88,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng tmpLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         // this works over onMapReady
+        /*
         map.addMarker(new MarkerOptions()
                     .position(tmpLatLng)
                     .title("YMark" + String.valueOf(markerInt++)));
+        */
+        // should be in funcMarkButton arrLatLng.add(tmpLatLng);
+
 
         for(LatLng iLatLng : arrLatLng) {
-
-            // mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            mapFragment.getMapAsync(this);
+            map.addMarker(new MarkerOptions()
+                    .position(iLatLng)
+                    .title("UMark" + String.valueOf(markerInt++)));
             bounds.include(iLatLng);
-
         }
-        if (arrLatLng.size() > 0)
-            map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
+
+        if (arrLatLng.size() > 0) {
+            // map.moveCamera( CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size() - 1)), 2.0)  );
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(arrLatLng.get(arrLatLng.size() - 1), 17));
+        }
+
+        mapFragment.getMapAsync(this); // needed??
     }
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
         mManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.setRetainInstance(true); // otherwise will crash during orietation change
 
+        mapFragment.getMapAsync(this); // needed?
+
+        events = new MarkerSQL(this);
+        // a quick test #1 of MarkerSQL
+        /*
+        try {
+            LatLng llDis = new LatLng(28.418971, -81.581436);
+            Double dLat = llDis.latitude;
+            Double dLng = llDis.longitude;
+            String sLat = dLat.toString();
+            String sLng = dLng.toString();
+            addMarkerSql(sLat, sLng);
+            Cursor cursor = getEvents();
+            showMarkers(cursor);
+        } finally {
+            events.close();
+        */
+
+
+        // a quick test #2 of loading from MarkerSQL
+
+        try {
+            Cursor cursor = getEvents();
+            loadMarkers(cursor);
+        } finally {
+            events.close();
+
+
+    }
 
 
     }
@@ -143,8 +195,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 */
         // move map to last position
-        if (arrLatLng.size() > 0)
-            map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
+        // moved to update //if (arrLatLng.size() > 0)
+        //    map.moveCamera(CameraUpdateFactory.newLatLng(arrLatLng.get((arrLatLng.size()-1))));
         // map.moveCamera(CameraUpdateFactory.newLatLng(disneySevenLagoon));
         // CameraUpdate cU = CameraUpdateFactory.newLatLngBounds(bounds.build(), 100, 100, 50);
 
@@ -161,14 +213,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void funcButtonMark(View view) {
+
        Toast.makeText(this, "Marking!", Toast.LENGTH_SHORT).show();
        Log.d("XAC", "Marking");
+
        mCurrentLocation = mManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
        if (mCurrentLocation != null ) {
            String sMsg =  String.format("Your Location:\n%.2f, %.2f", mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
            Toast.makeText(this, sMsg, Toast.LENGTH_LONG).show();
            LatLng tmpLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-           arrLatLng.add(tmpLatLng);
+           arrLatLng.add(tmpLatLng); // add to  listarray to be marked on the map
+
+           // LatLng llDis = new LatLng(28.418971, -81.581436);
+           Double dLat = tmpLatLng.latitude;
+           Double dLng = tmpLatLng.longitude;
+           String sLat = dLat.toString();
+           String sLng = dLng.toString();
+           addMarkerSql(sLat, sLng);
+           Cursor cursor = getEvents();
+           showMarkers(cursor);
        } else {
            Toast.makeText(this, "NO GPS location found?!", Toast.LENGTH_LONG).show();
        }
@@ -270,4 +334,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         */
 
     }
+
+
+
+    private void addMarkerSql(String sLat, String sLng) {
+        // Insert a new record into the Events data source.
+        // You would do something similar for delete and update.
+        SQLiteDatabase db = events.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        // values.put(TIME, System.currentTimeMillis());
+        // values.put(TITLE, string);
+        values.put(LAT, sLat);
+        values.put(LNG, sLng);
+        db.insertOrThrow(TABLE_NAME, null, values);
+    }
+
+    private Cursor getEvents() {
+        // Perform a managed query. The Activity will handle closing
+        // and re-querying the cursor when needed.
+        SQLiteDatabase db = events.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, FROM, null, null, null,
+                null, ORDER_BY);
+        startManagingCursor(cursor);
+        return cursor;
+    }
+
+    private void showMarkers(Cursor cursor) {
+        // Stuff them all into a big string
+        StringBuilder builder = new StringBuilder(
+                "Saved events:\n");
+        while (cursor.moveToNext()) {
+            // Could use getColumnIndexOrThrow() to get indexes
+            // long id = cursor.getLong(0);
+            // long time = cursor.getLong(1);
+            // String title = cursor.getString(2);
+            long id = cursor.getLong(0);
+            String lat  = cursor.getString(1);
+            String lng  = cursor.getString(2);
+            builder.append(id).append(": ");
+            //builder.append(time).append(": ");
+            builder.append(lat).append(": ");
+            builder.append(lng).append("\n");
+        }
+        // Display on the screen
+        TextView text = (TextView) findViewById(R.id.text);
+        text.setText(builder);
+    }
+
+
+    private void loadMarkers(Cursor cursor) {
+        // Stuff SQL markers into local ArrayList arrLatLng
+        // StringBuilder builder = new StringBuilder("Saved events:\n");
+        while (cursor.moveToNext()) {
+
+            long id = cursor.getLong(0);
+            String sLat  = cursor.getString(1);
+            String sLng  = cursor.getString(2);
+            Double dLat = Double.parseDouble(sLat);
+            Double dLng = Double.parseDouble(sLng);
+            arrLatLng.add(new LatLng(dLat, dLng));
+        }
+        // Display on the screen
+        TextView text = (TextView) findViewById(R.id.text);
+    }
+
+
 } // MapsActivity
